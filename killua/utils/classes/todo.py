@@ -147,7 +147,7 @@ class TodoList:
                 "views": 0,
             }
         )
-        return await TodoList.new(list_id)
+        return await TodoList.new.new(list_id)
     
     
 
