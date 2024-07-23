@@ -40,8 +40,12 @@ class TodoSystem(commands.Cog):
             )
         )
 
+        # Allows testing of the commands
         for menu in menus:
-            self.client.tree.add_command(menu)
+            try:
+                self.client.tree.add_command(menu)
+            except discord.app_commands.errors.CommandAlreadyRegistered:
+                pass
 
     @tasks.loop(seconds=60)
     async def check_todo_dues(self):
@@ -283,8 +287,8 @@ class TodoSystem(commands.Cog):
     @discord.app_commands.allowed_contexts(discord.AppCommandContext.all())
     @discord.app_commands.describe(
         name="The name of the todo list",
-        status="Wether a todo list is publicly viewable or not",
-        delete_when_done="Wether a todo should be deleted when marked done",
+        status="Whether a todo list is publicly viewable or not",
+        delete_when_done="Whether a todo should be deleted when marked done",
         custom_id="A custom id for the todo list- Premium only",
     )
     async def create(
@@ -297,9 +301,12 @@ class TodoSystem(commands.Cog):
     ):
         """Lets you create your todo list in an interactive menu"""
 
-        user_todo_lists = [
-            x async for x in DB.todo.find({"owner": ctx.author.id})
-        ]
+        if not DB.todo.find({"owner": ctx.author.id}) == []:
+            user_todo_lists = [
+                x async for x in DB.todo.find({"owner": ctx.author.id})
+            ]
+        else:
+            user_todo_lists = []
 
         if len(user_todo_lists) == 5:
             return await ctx.send(
