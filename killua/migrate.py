@@ -17,7 +17,9 @@ async def migrate_requiring_bot(bot: Type[AutoShardedBot]):
     logging.info("Migrating database...")
     const: Collection = DB._DB["const"]
 
-    usage: dict = await const.find_one({"_id": "usage"})["command_usage"]
+    com_usage = await const.find_one({"_id": "usage"})
+
+    usage: dict = com_usage["command_usage"]
 
     logging.info("Attemping to migrate edge cases...")
     usage["games gstats"] = usage.get("games stats", 0)
